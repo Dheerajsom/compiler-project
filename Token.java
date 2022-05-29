@@ -2,57 +2,52 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public enum Token {
+
+    // All Tokens for BasedScript
     
-    PRINT ("based"),
-    STRING ("text"),   
-    INTEGER("num"),
-    BOOL("bool"), 
-    INPUT("ask"),
-    COMMENTS("\\@"), 
-    PLUS ("\\+"), 
-    MINUS ("\\-"), 
-    MUL ("\\*"), 
-    DIV ("/"),
-    NOT ("!"), 
-    AND ("&"),  
-    OR ("\\|"),  
-    LESS ("<"),
-    LEG ("<="),
-    GT (">"),
-    GEQ (">="), 
-    EQ ("=="),
-    ASSIGNOP ("="),
-    PARENOPEN ("\\("),
-    PARENCLOSE ("\\)"), 
-    SEMI (";"), 
-    COMMA (","), 
-    IF ("if"), 
-    ELSE ("else"), 
-    OPENBRACKET ("\\{"),
-    CLOSEBRACKET ("\\}");
+    TK_PRINT ("based"),      
+    TK_STRING ("text"),   
+    TK_INTEGER("num"),
+    TK_BOOL("bool"), 
+    TK_INPUT("ask"),
+    TK_COMMENTS("\\@"), 
+    TK_PLUS ("\\+"), 
+    TK_MINUS ("\\-"), 
+    TK_MUL ("\\*"), 
+    TK_DIV ("/"),
+    TK_NOT ("!"), 
+    TK_AND ("&"),  
+    TK_OR ("\\|"),  
+    TK_LESS ("<"),
+    TK_LEG ("<="),
+    TK_GT (">"),
+    TK_GEQ (">="), 
+    TK_EQ ("=="),
+    TK_ASSIGNOP ("="),
+    TK_PARENOPEN ("\\("),
+    TK_PARENCLOSE ("\\)"), 
+    TK_SEMI (";"), 
+    TK_COMMA (","), 
+    TK_IF ("if"), 
+    TK_ELSE ("else"), 
+    TK_OPENBRACKET ("\\{"),
+    TK_CLOSEBRACKET ("\\}"),
+    STRING ("\"[^\"]+\""),   // String
+    INTEGER ("\\d"),  // Integer
+    IDENTIFIER ("\\w+"); // Identifier
 
-    private String text;
+    private final Pattern pattern;
 
-    Token(String text) {
-        this.text = text;
+    Token(String regex) {
+        pattern = Pattern.compile("^" + regex);    // Compile the regex
     }
 
-    public String getText() {
-        return text;
-    }
+    int endOfMatch(String s) { // Return the index of the end of the match
+        Matcher m = pattern.matcher(s);   // Create a matcher
 
-    public static Token getToken(String text) {
-        for (Token token : Token.values()) {
-            if (token.getText().equals(text)) {
-                return token;
-            }
+        if (m.find()) {    // If a match is found
+            return m.end();  // Return the end of the match
         }
-        return null;
+        return -1;
     }
 }
-
-
-
-
-
-
