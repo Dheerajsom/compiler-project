@@ -6,75 +6,76 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public class Lexer {
-    private StringBuilder input = new StringBuilder();
+    private StringBuilder userInput = new StringBuilder();
     private Token token;
-    private String lexema;
-    private boolean exausthed = false;
-    private String errorMessage = "";
-    private Set<Character> blankChars = new HashSet<Character>();
+    private String lexer;
+    private boolean empty = false;
+    private String errors = "";
+    private Set<Character> blankCharacters = new HashSet<Character>(); // Set of blank characters
 
-    public Lexer(String filePath) {
-        try (Stream<String> st = Files.lines(Paths.get(filePath))) {
-            st.forEach(input::append);
-        } catch (IOException ex) {
-            exausthed = true;
-            errorMessage = "Could not read file: " + filePath;
+    public Lexer(String readFile) {
+        try (Stream<String> st = Files.lines(Paths.get(readFile))) { // Read the file
+            st.forEach(userInput::append); // Append each line to the userInput
+        } catch (IOException exception) {
+            empty = true;
+            errors = "Could not read file / File not found: " + readFile;
             return;
         }
 
-        blankChars.add('\r');
-        blankChars.add('\n');
-        blankChars.add((char) 8);
-        blankChars.add((char) 9);
-        blankChars.add((char) 11);
-        blankChars.add((char) 12);
-        blankChars.add((char) 32);
+        blankCharacters.add('\r'); // Carrage Return
+        blankCharacters.add('\n'); // New Line
+        blankCharacters.add((char) 8);
+        blankCharacters.add((char) 9);
+        blankCharacters.add((char) 11);
+        blankCharacters.add((char) 12);
+        blankCharacters.add((char) 32);
 
-        moveAhead();
+        nextToken(); // Get the first token
     }
-    public void moveAhead() {
-        if (exausthed) {
+
+    public void nextToken() {
+        if (empty) { // If the file is empty
+            return; // return nothing
+        }
+
+        if (userInput.length() == 0) {
+            empty = true; // If user didn't input anything, empty is set to true
             return;
         }
 
-        if (input.length() == 0) {
-            exausthed = true;
-            return;
-        }
-
-        ignoreWhiteSpaces();
+        blankWhiteSpaces(); // Remove blank spaces <-- unnecessary
 
         if (findNextToken()) {
             return;
         }
 
-        exausthed = true;
+        empty = true;
 
-        if (input.length() > 0) {
-            errorMessage = "Unexpected symbol: '" + input.charAt(0) + "'";
+        if (userInput.length() > 0) {
+            errors = "Unexpected symbol/Unidentifiable symbol: '" + userInput.charAt(0) + "'";
         }
     }
 
-    private void ignoreWhiteSpaces() {
-        int charsToDelete = 0;
+    private void blankWhiteSpaces() {
+        int deleteChars = 0;
 
-        while (blankChars.contains(input.charAt(charsToDelete))) {
-            charsToDelete++;
+        while (blankCharacters.contains(userInput.charAt(deleteChars))) { // While the character is a blank character
+            deleteChars++; // Increment the number of characters to delete
         }
 
-        if (charsToDelete > 0) {
-            input.delete(0, charsToDelete);
+        if (deleteChars > 0) { // If there are characters to delete
+            userInput.delete(0, deleteChars); // Delete the characters
         }
     }
 
     private boolean findNextToken() {
-        for (Token t : Token.values()) {
-            int end = t.endOfMatch(input.toString());
+        for (Token x : Token.values()) {
+            int end = x.endOfMatch(userInput.toString());
 
             if (end != -1) {
-                token = t;
-                lexema = input.substring(0, end);
-                input.delete(0, end);
+                token = x;
+                lexer = userInput.substring(0, end);
+                userInput.delete(0, end);
                 return true;
             }
         }
@@ -86,19 +87,19 @@ public class Lexer {
         return token;
     }
 
-    public String currentLexema() {
-        return lexema;
+    public String currentLexer() {
+        return lexer;
     }
 
     public boolean isSuccessful() {
-        return errorMessage.isEmpty();
+        return errors.isEmpty();
     }
 
     public String errorMessage() {
-        return errorMessage;
+        return errors;
     }
 
-    public boolean isExausthed() {
-        return exausthed;
+    public boolean isEmpty() {
+        return empty;
     }
 }
