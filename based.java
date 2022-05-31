@@ -8,10 +8,10 @@ public class based {
 
     public static void main(String[] args) {
 
-        Lexer lexer = new Lexer("read.txt");
-        while (!lexer.isExausthed()) {
-            System.out.printf("%-5s :  %s \n",lexer.currentLexema() , lexer.currentToken());
-            lexer.moveAhead();
+        Lexer lexer = new Lexer("based.txt");
+        while (!lexer.isEmpty()) {
+            System.out.printf("%-5s:%s\n", lexer.currentLexer(), lexer.currentToken());
+            lexer.nextToken();
         }
 
         if (lexer.isSuccessful()) {
